@@ -7,13 +7,13 @@ pipeline{
             }
         }
         
-        stage('Run test'){
+        stage ('Run test'){
             steps{
                 sh 'docker compose up -d'
             }
         }
         
-        stage('Done test'){
+        stage ('Done test'){
             steps{
                 echo 'Build Successfuly'
             }
