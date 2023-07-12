@@ -5,6 +5,9 @@ networks:
     driver: bridge
 volumes:
   data:
+  grafana_config:
+  grafana_data:
+  grafana_logs:
 
 services:
   db:
@@ -18,6 +21,7 @@ services:
       - data:/var/lib/mysql
     ports:
       - "3306:3306"
+
   backend:
     build:
       context: ./BackEnd-SpringBoot/
@@ -43,6 +47,7 @@ services:
       - "8080:8080"
     depends_on:
       - db
+
   frontend:
     build:
       context: ./FrontEnd-Angular/
@@ -55,5 +60,65 @@ services:
     depends_on:
       - db
       - backend
+      
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+    - 9090:9090
+    networks:
+      - app-spring-angular
+    volumes:
+    - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    depends_on:
+      - db
+      - backend
+      - frontend
+          
+  loki:
+    image: grafana/loki:2.8.0
+    container_name: loki
+    volumes:
+      - ./loki-config.yaml:/mnt/config/loki-config.yaml
+    ports:
+      - "3100:3100"
+    networks:
+      - app-spring-angular
+    command: -config.file=/mnt/config/loki-config.yaml
+    depends_on:
+      - db
+      - backend
+      - frontend
+
+  promtail:
+    image: grafana/promtail:2.8.0
+    container_name: promtail
+    volumes:
+      - ./promtail-config.yaml:/mnt/config/promtail-config.yaml
+      - /var/log:/var/log
+    networks:
+      - app-spring-angular
+    links:
+      - loki
+    command: -config.file=/mnt/config/promtail-config.yaml
+    depends_on:
+      - db
+      - backend
+      - frontend
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - app-spring-angular
+    volumes:
+      - grafana_config:/etc/grafana
+      - grafana_data:/var/lib/grafana
+      - grafana_logs:/var/log/grafana
+    depends_on:
+      - db
+      - backend
+      - frontend
     
 
