@@ -72,5 +72,4 @@ public class EmployeeController {
 		respon.put("Deleted", Boolean.TRUE);
 		return ResponseEntity.ok(respon);
 	}		
-	
 }

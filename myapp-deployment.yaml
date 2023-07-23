@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: backend
+        image: ngochung1809/back-end-app-spring:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://mysql:3306/angular_spring
+        - name: SPRING_DATASOURCE_USERNAME
+          value: root
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: Ngochung1809!
+        - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+          value: com.mysql.cj.jdbc.Driver
+        - name: SPRING_JPA_SHOW_SQL
+          value: "true"
+        - name: SPRING_JPA_DATABASE_PLATFORM
+          value: org.hibernate.dialect.MySQL8Dialect
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: create-drop
+        - name: SERVER_PORT
+          value: "8080"
+      - name: frontend
+        image: ngochung1809/nginx-app-spring:latest
+        ports:
+        - containerPort: 80
