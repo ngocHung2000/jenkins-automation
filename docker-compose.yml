@@ -3,6 +3,7 @@ version: "3.9"
 networks:
   app-spring-angular:
     driver: bridge
+    
 volumes:
   data:
   # grafana_config:
