@@ -12,54 +12,61 @@ volumes:
 services:
   db:
     image: mysql:8.0
+    container_name: db_mysql
     environment:
       - MYSQL_ROOT_PASSWORD=Ngochung1809!
-      - MYSQL_DATABASE=angular_spring
+      - MYSQL_DATABASE=employee_app
     networks:
       - app-spring-angular
     volumes:
       - data:/var/lib/mysql
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build:
-      context: ./BackEnd-SpringBoot/
-      dockerfile: Dockerfile
-    image: ngochung1809/back-end-app-spring:latest
+    # build:
+    #   context: ./BackEnd-SpringBoot/
+    #   dockerfile: Dockerfile
+    image: ngochung1809/back-end-app-spring:0.0.1
     networks:
       - app-spring-angular
+    container_name: back-end-app
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/angular_spring
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/employee_app
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=Ngochung1809!
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_SHOW_SQL=true
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
       - SERVER_PORT=8080
     healthcheck:
-      test: [ "CMD-SHELL", "curl --fail http://localhost:8080/actuator/health || exit 1" ]
+      test: [ "CMD-SHELL", "curl --fail http://backend:8080/actuator/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
-    build:
-      context: ./FrontEnd-Angular/
-      dockerfile: Dockerfile
-    image: ngochung1809/nginx-app-spring:latest
+    # build:
+    #   context: ./FrontEnd-Angular/
+    #   dockerfile: Dockerfile
+    image: ngochung1809/nginx-app-spring:0.0.1
+    container_name: front-end-app
     networks:
       - app-spring-angular
     ports:
       - "80:80"
     depends_on:
-      - db
-      - backend
+      backend:
+        condition: service_healthy
       
   # prometheus:
   #   image: prom/prometheus:latest
