@@ -12,7 +12,7 @@ pipeline{
                 sh 'docker compose up -d'
             }
         }
-        
+
         stage ('Done test'){
             steps{
                 echo 'Build Successfuly'
@@ -20,3 +20,17 @@ pipeline{
         }
     }
 }
+
+// node {
+//   stage('SCM') {
+//     checkout scm
+//   }
+//   stage('SonarQube Analysis') {
+//     def mvn = tool 'Default Maven';
+//     withSonarQubeEnv() {
+//       sh "${mvn}/bin/mvn clean verify sonar:sonar"
+//     }
+//   }
+// }
+
+// token:    4c768d6a6182f22fedcfba49c71eab09261f4ac9
